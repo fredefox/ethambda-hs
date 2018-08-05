@@ -4,10 +4,10 @@
   , ConstraintKinds
   , StandaloneDeriving
 #-}
-module Position (main) where
+module Equivalence where
 
 import Ethambda.System
-import Ethambda.Position (position)
+import Ethambda.Equivalence (equivalence)
 
 import qualified Data
 
@@ -16,5 +16,5 @@ main = mapM_ go Data.types
   where
   go t = do
     print t
-    print $ position t
+    print $ equivalence t
     putStrLn ""

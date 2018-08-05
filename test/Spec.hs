@@ -1,2 +1,7 @@
+import qualified Equivalence as Equivalence
+import qualified Position    as Position
+
 main :: IO ()
-main = putStrLn "Test suite not yet implemented"
+main
+  =  Equivalence.main
+  >> Position.main
