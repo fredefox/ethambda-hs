@@ -1,9 +1,3 @@
-{-# Language GADTs
-  , LambdaCase
-  , FlexibleContexts
-  , ConstraintKinds
-  , StandaloneDeriving
-#-}
 module Ethambda.Common ((<.>), (<.)) where
 
 (<.>) :: String -> String -> String

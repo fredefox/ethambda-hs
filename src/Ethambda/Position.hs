@@ -1,21 +1,15 @@
-{-# Language GADTs
-  , LambdaCase
-  , FlexibleContexts
-  , ConstraintKinds
-  , StandaloneDeriving
-#-}
+{-# OPTIONS_GHC -Wno-unused-top-binds #-}
 module Ethambda.Position (position) where
 
 import Data.Bool (bool)
 import Data.List (intercalate)
-import Control.Monad ((>=>))
 import Control.Monad.Writer
   (MonadWriter, WriterT, Writer, execWriterT, execWriter, tell)
 import Control.Monad.Reader
   (MonadReader, ReaderT, Reader, runReaderT, runReader, ask, local)
 
-import Ethambda.Common ((<.>), (<.))
-import Ethambda.System (Type(Var, Fun))
+import Ethambda.Common ((<.))
+import Ethambda.Type (Type(Var, Fun))
 
 
 -- * The 'PosNeg' type.
@@ -26,10 +20,10 @@ data PosNeg a = PN
   }
 
 instance Show a => Show (PosNeg a) where
-  showsPrec _ (PN neg pos)
+  showsPrec _ (PN n p)
     = "PN"
-    <. stuff "neg" neg
-    <. stuff "pos" pos
+    <. stuff "neg" n
+    <. stuff "pos" p
     <. id
 
 stuff :: Show a => String -> [a] -> String
@@ -80,6 +74,7 @@ positionM = \case
   Fun t u -> do
     positionM u
     local not $ positionM t
+  _ → error "TODO"
 
 position :: Type a -> PosNeg a
 position = execApp0 . positionM

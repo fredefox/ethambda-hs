@@ -4,9 +4,9 @@
   , ConstraintKinds
   , StandaloneDeriving
 #-}
-module Data (types) where
+module Type (types) where
 
-import Ethambda.System
+import Ethambda.Type
 
 -- "a"
 -- pos: a

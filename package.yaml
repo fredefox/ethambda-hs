@@ -23,9 +23,23 @@ dependencies:
 - base >= 4.7 && < 5
 - mtl
 - containers
+- exceptions
 
 library:
   source-dirs: src
+
+default-extensions:
+  - GADTSyntax
+  - LambdaCase
+  - FlexibleContexts
+  - ConstraintKinds
+  - StandaloneDeriving
+  - UnicodeSyntax
+  - LambdaCase
+  - NamedWildCards
+  - DuplicateRecordFields
+  - ScopedTypeVariables
+  - RankNTypes
 
 executables:
   ethambda:

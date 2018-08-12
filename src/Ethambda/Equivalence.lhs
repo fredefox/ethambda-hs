@@ -2,7 +2,7 @@
 > , FlexibleContexts, LambdaCase, NamedWildCards
 > , FunctionalDependencies, TupleSections
 > , ScopedTypeVariables, TypeApplications #-}
->
+> {-# OPTIONS_GHC -Wno-all #-}
 > module Ethambda.Equivalence
 >   ( equivalence
 >   )
@@ -16,7 +16,7 @@
 > import qualified Data.Set as Set
 > import Control.Monad.State
 >
-> import qualified Ethambda.System as Eth
+> import qualified Ethambda.Type as Eth
 >
 > import Debug.Trace
 > import Unsafe.Coerce
