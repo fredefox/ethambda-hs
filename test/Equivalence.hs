@@ -1,15 +1,9 @@
-{-# Language GADTs
-  , LambdaCase
-  , FlexibleContexts
-  , ConstraintKinds
-  , StandaloneDeriving
-#-}
-module Equivalence where
+module Equivalence (main) where
 
-import Ethambda.System
+import Ethambda.Type
 import Ethambda.Equivalence (equivalence)
 
-import qualified Data
+import qualified Type as Data
 
 main :: IO ()
 main = mapM_ go Data.types

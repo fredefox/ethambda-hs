@@ -1,6 +1,7 @@
 -- | The core type system.
 module Ethambda.Typecheck
-  ( typecheck
+  ( Nesting(nesting)
+  , typecheck
   ) where
 
 import Prelude hiding (lookup)
@@ -19,7 +20,8 @@ import qualified Ethambda.Term as Term
 
 -- * Type checking implementation
 
-type VarMap a = IntMap (Type a)
+-- type VarMap a = IntMap (Type a)
+type VarMap a = [] (Type a)
 
 data Env a = Env
   { envMap ∷ VarMap a
@@ -37,6 +39,7 @@ instance Monoid (Env a) where
 
 class Nesting a where
   nesting ∷ a → Int
+  fromInt ∷ Int → a
 
 sameNesting ∷ Nesting a ⇒ a → a → Bool
 sameNesting = (==) `on` nesting
@@ -73,10 +76,38 @@ liftMaybe e = \case
   Nothing → throwM e
   Just a → pure a
 
+-- lookup
+--  ∷ Exception e ⇒ MonadThrow m
+--  ⇒ e → Int → VarMap v → m v
+-- lookup e a = liftMaybe e . VarMap.lookup a
+
+-- The problem with this quite general solution is that we must
+-- traverse the whole structure.
+lookupFoldable ∷ ∀ t a . Foldable t ⇒ Int → t a → Maybe a
+lookupFoldable n = foldl go (n, Nothing) >>> snd
+  where
+  go ∷ (Int, Maybe a) → a → (Int, Maybe a)
+  go (n, ma) a
+    | n == 0    = (n, ma)
+    | otherwise = (pred n, Nothing)
+
+lookupList ∷ Int → [a] → Maybe a
+lookupList n = \case
+  [] → Nothing
+  (x:xs) → if n == 0 then Just x else lookupList (pred n) xs
+
+-- lkpLst ∷ ∀ t a . Traversable t ⇒ Int → t a → Maybe a
+-- lkpLst idx = traverse @t @Maybe (go idx) >>> _
+--   where
+--   go ∷ Int → a → Maybe a
+--   go n a
+--     | n < 0 = Nothing
+--     | otherwise = Just a
+
 lookup
  ∷ Exception e ⇒ MonadThrow m
- ⇒ e → Int → IntMap v → m v
-lookup e a = liftMaybe e . IntMap.lookup a
+ ⇒ e → Int → [v] → m v
+lookup e idx = lookupList idx >>> liftMaybe e 
 
 lookupVar
  ∷ ∀ a m e . Exception e ⇒ TC a m
@@ -98,8 +129,13 @@ instance Show AppException where
 
 instance Exception AppException where
 
+push ∷ TC a m ⇒ Type a → m ()
+push t = modify go
+  where
+  go (Env m idx) = Env (t : m) idx
+
 weaken ∷ TC a m ⇒ m ()
-weaken = incrIdx
+weaken = push (Type.Var (fromInt 0)) >> incrIdx
 
 strengthen ∷ TC a m ⇒ m ()
 strengthen = decrIdx
@@ -158,7 +194,7 @@ tcConstr = \case
   Term.Injl t      → uncurry       Type.Sum  <$> tcSum t
   Term.Injr t      → uncurry (flip Type.Sum) <$> tcSum t
 
-tc ∷ TC a m ⇒ Term a → m (Type a)
+tc ∷ ∀ a m . TC a m ⇒ Term a → m (Type a)
 tc = \case
   Term.Var a    → lookupVar VarNotFoundInEnv a
   Term.Fun t    → tcLambda t
@@ -168,18 +204,24 @@ tc = \case
 
 -- * Implementation of 'TC'
 
-newtype SimpleVar = SimpleVar Int
+instance Nesting Int where
+  nesting = id
+  fromInt = id
 
-instance Nesting SimpleVar where
-  nesting (SimpleVar idx) = idx
+type TypeChecker err var a
+  = StateT (Env var) err a
 
-type TypeChecker m a
-  = StateT (Env SimpleVar) m a
-
-runTypechecker ∷ MonadThrow m ⇒ TypeChecker m a → m a
+runTypechecker
+  ∷ MonadThrow err
+  ⇒ Nesting var
+  ⇒ TypeChecker err var a
+  → err a
 runTypechecker = (`evalStateT` mempty)
 
 typecheck
-  ∷ MonadThrow m
-  ⇒ Term SimpleVar → m (Type SimpleVar)
+  ∷ ∀ m a
+  . MonadThrow m
+  ⇒ Nesting a
+  ⇒ Term a
+  → m (Type a)
 typecheck = tc >>> runTypechecker

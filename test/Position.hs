@@ -1,15 +1,9 @@
-{-# Language GADTs
-  , LambdaCase
-  , FlexibleContexts
-  , ConstraintKinds
-  , StandaloneDeriving
-#-}
 module Position (main) where
 
-import Ethambda.System
+import Ethambda.Type
 import Ethambda.Position (position)
 
-import qualified Data
+import qualified Type as Data
 
 main :: IO ()
 main = mapM_ go Data.types

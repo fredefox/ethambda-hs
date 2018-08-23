@@ -16,3 +16,6 @@ data Constr a where
   Product ∷ Term a → Term a → Constr a
   Injl    ∷          Term a → Constr a
   Injr    ∷          Term a → Constr a
+
+deriving instance Show a ⇒ Show (Term a)
+deriving instance Show a ⇒ Show (Constr a)

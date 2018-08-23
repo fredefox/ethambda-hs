@@ -1,9 +1,3 @@
-{-# Language GADTs
-  , LambdaCase
-  , FlexibleContexts
-  , ConstraintKinds
-  , StandaloneDeriving
-#-}
 module Type (types) where
 
 import Ethambda.Type

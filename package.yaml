@@ -55,7 +55,7 @@ executables:
 tests:
   test:
     main:                Spec.hs
-    other-modules: Data, Position, Equivalence
+    other-modules: Type, Position, Equivalence
     source-dirs:         test
     ghc-options:
     - -threaded
